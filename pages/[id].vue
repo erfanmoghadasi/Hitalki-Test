@@ -6,15 +6,15 @@
     >
       <div
         @click="() => (selectedPlan = 1)"
-        class="w-72 aspect-square rounded shadow hover:text-white transition-all cursor-pointer hover:scale-105 hover:bg-rose-400 bg-white flex items-center justify-center"
+        class="w-72 aspect-square text-xl drop-shadow rounded shadow hover:text-white transition-all cursor-pointer hover:scale-105 hover:bg-rose-400 bg-white flex items-center justify-center"
       >
-        30 دقیقه
+        نیم ساعته
       </div>
       <div
         @click="() => (selectedPlan = 2)"
-        class="w-72 aspect-square rounded shadow hover:text-white transition-all cursor-pointer hover:scale-105 hover:bg-rose-400 bg-white flex items-center justify-center"
+        class="w-72 aspect-square text-xl drop-shadow rounded shadow hover:text-white transition-all cursor-pointer hover:scale-105 hover:bg-blue-400 bg-white flex items-center justify-center"
       >
-        60 دقیقه
+        یک ساعته
       </div>
     </div>
 
@@ -23,30 +23,35 @@
         <button
           @click="() => selectedWeek--"
           :disabled="!selectedWeek"
-          class="absolute -top-10 right-0 disabled:opacity-50"
+          class="bg-blue-950 text-white text-xs px-10 py-2 rounded absolute -top-10 right-0 disabled:opacity-30"
         >
           هفته قبل
         </button>
-        <button @click="() => selectedWeek++" class="absolute -top-10 left-0">
+        <button
+          @click="() => selectedWeek++"
+          class="bg-blue-950 text-white text-xs px-10 py-2 rounded absolute -top-10 left-0"
+        >
           هفته بعد
         </button>
         <div
           v-for="(day, dayIndex) in weekList"
           :key="day"
-          class="w-40 group  min-h-fit flex flex-col bg-white outline shadow outline-zinc-300 rounded-lg py-5 items-center"
+          class="w-40 group min-h-fit flex flex-col bg-white outline shadow outline-zinc-300 rounded-lg py-5 items-center"
         >
           <p class="border-b w-full text-center pb-3 mb-3">
             {{ dayDefiner(day[0].timestamp) }}
           </p>
           <button
-          v-for="(time, timeIndex) in day"
+            v-for="(time, timeIndex) in day"
             class="relative w-full flex flex-col h-9 mx-3 py-2 disabled:opacity-30 disabled:cursor-not-allowed transition-all rounded-xl"
             :class="checkAvailable(dayIndex, timeIndex)"
             @click="() => selectHandler(time.id)"
             :key="time.timestamp"
             :disabled="time.status === 'reserved'"
           >
-            <div class="w-full text-center h-full flex items-center justify-center flex-row-reverse">
+            <div
+              class="w-full text-center h-full flex items-center justify-center flex-row-reverse"
+            >
               <span>{{ new Date(time.timestamp * 1000).getHours() }}</span>
               <span>:</span>
               <span>{{
@@ -68,11 +73,14 @@ const startTime = Math.trunc(new Date().getTime() / 1000); //+604800000 ms
 const weekList: any = ref([]);
 let allTimes;
 const now = new Date().getDate();
-const selectedId = ref(0)
+const selectedId = ref(0);
 
+// Fetching Data ------------------------------------
 const { data, refresh } = useFetch(
   `https://api.hitalki.org/api/users/${id}/schedule?from=${startTime}&to=1682452800`
 );
+
+// Modifing Fetched Data ------------------------------------
 watch(data, () => {
   allTimes = JSON.parse(JSON.stringify(data))._value;
 
@@ -90,30 +98,30 @@ watch(data, () => {
       weekList.value.push(lastWeek);
     }
   }
-
-  console.log(weekList.value);
 });
 
+// Hours Select Classes --------------------------------
 const checkAvailable = (dayIndex: number, timeIndex: number) => {
   if (
     selectedPlan.value === 2 &&
     weekList.value[dayIndex][timeIndex]?.status === "available" &&
     weekList.value[dayIndex][timeIndex + 1]?.status === "available"
   ) {
-    if(selectedId.value === weekList.value[dayIndex][timeIndex]?.id){
-      return 'two-select clicked'
+    if (selectedId.value === weekList.value[dayIndex][timeIndex]?.id) {
+      return "two-select clicked";
     }
-    return 'two-select'
+    return "two-select";
   }
 
-  if(selectedPlan.value === 1){
-    if(selectedId.value === weekList.value[dayIndex][timeIndex]?.id){
-      return 'single-selected single-clicked'
+  if (selectedPlan.value === 1) {
+    if (selectedId.value === weekList.value[dayIndex][timeIndex]?.id) {
+      return "single-selected single-clicked";
     }
-    return 'single-selected'
+    return "single-selected";
   }
 };
 
+// Define the Day of the Week ---------------------------
 const dayDefiner = (timeStamp: number) => {
   const date = new Date(timeStamp * 1000).getDay();
   switch (date) {
@@ -140,17 +148,18 @@ const dayDefiner = (timeStamp: number) => {
   }
 };
 
+// Select an hour -----------------------------------------
 const selectHandler = (id: number) => {
-  if(selectedId.value = id){
-    selectedId.value = 0
+  if ((selectedId.value = id)) {
+    selectedId.value = 0;
   }
-  selectedId.value = id
-}
+  selectedId.value = id;
+};
 </script>
 
 <style scoped>
-.two-select:hover::after{
-  content: '';
+.two-select:hover::after {
+  content: "";
   position: absolute;
   top: 10%;
   left: 0;
@@ -164,7 +173,7 @@ const selectHandler = (id: number) => {
 }
 
 .clicked::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 10%;
   left: 0;
@@ -177,7 +186,7 @@ const selectHandler = (id: number) => {
   z-index: 10;
 }
 .single-clicked::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0%;
   left: 0;
@@ -190,8 +199,8 @@ const selectHandler = (id: number) => {
   z-index: 10;
 }
 
-.single-selected:hover::after{
-  content: '';
+.single-selected:hover::after {
+  content: "";
   position: absolute;
   top: 0%;
   left: 0;
